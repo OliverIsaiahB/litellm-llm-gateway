@@ -1,0 +1,23 @@
+# one_gateway — the team's LLM gateway, in one file.
+model_list:
+  - model_name: fast              # the alias your team calls
+    litellm_params:
+      model: gpt-5                # what the gateway actually routes to
+      api_key: os.environ/OPENAI_API_KEY
+
+  - model_name: careful
+    litellm_params:
+      model: anthropic/claude-sonnet-5
+      api_key: os.environ/ANTHROPIC_API_KEY
+
+router_settings:
+  num_retries: 2
+  fallbacks: [{"fast": ["careful"]}]
+
+general_settings:
+  master_key: os.environ/LITELLM_MASTER_KEY  # admin key — it mints the others
+  database_url: os.environ/DATABASE_URL      # Postgres; stores keys and spend
+
+litellm_settings:
+  max_budget: 25.0        # hard ceiling for the whole gateway, in USD
+  budget_duration: 30d    # the window the budget resets over
